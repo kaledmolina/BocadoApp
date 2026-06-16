@@ -228,6 +228,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           value: _isCreatingCustomCategory ? '__new__' : _category,
+                          isExpanded: true,
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.grey.shade50,
@@ -238,9 +239,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           ),
                           items: [
                             ..._categories.map((cat) {
-                              return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 14)));
+                              return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis));
                             }),
-                            const DropdownMenuItem(value: '__new__', child: Text('+ Nueva categoría...', style: TextStyle(fontSize: 14, color: Colors.orange))),
+                            const DropdownMenuItem(value: '__new__', child: Text('+ Nueva categoría...', style: TextStyle(fontSize: 14, color: Colors.orange), overflow: TextOverflow.ellipsis)),
                           ],
                           onChanged: (val) {
                             setState(() {
