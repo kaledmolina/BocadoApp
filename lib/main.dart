@@ -4,6 +4,7 @@ import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/menu_provider.dart';
 import 'providers/tables_provider.dart';
+import 'providers/waiters_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
@@ -15,6 +16,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => MenuProvider()),
         ChangeNotifierProvider(create: (_) => TablesProvider()),
+        ChangeNotifierProvider(create: (_) => WaitersProvider()),
       ],
       child: const MyApp(),
     ),

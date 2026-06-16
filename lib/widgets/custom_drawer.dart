@@ -5,6 +5,7 @@ import '../screens/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/menu_screen.dart';
 import '../screens/tables_screen.dart';
+import '../screens/waiters_screen.dart';
 
 class CustomDrawer extends StatefulWidget {
   final String currentRoute;
