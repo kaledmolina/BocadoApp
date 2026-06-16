@@ -7,7 +7,8 @@ import '../screens/menu_screen.dart';
 import '../screens/tables_screen.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({super.key});
+  final String currentRoute;
+  const CustomDrawer({super.key, this.currentRoute = 'home'});
 
   @override
   State<CustomDrawer> createState() => _CustomDrawerState();
@@ -102,23 +103,26 @@ class _CustomDrawerState extends State<CustomDrawer> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 children: [
-                  _buildDrawerItem(Icons.dashboard, 'Dashboard', true, textColor, () {
+                  _buildDrawerItem(Icons.dashboard, 'Dashboard', widget.currentRoute == 'home', textColor, () {
+                    if (widget.currentRoute == 'home') return Navigator.of(context).pop();
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (_) => const HomeScreen()),
                     );
                   }),
                   if (isAdmin) ...[
-                    _buildDrawerItem(Icons.restaurant_menu, 'Menú / Platos', false, subTextColor, () {
+                    _buildDrawerItem(Icons.restaurant_menu, 'Menú / Platos', widget.currentRoute == 'menu', subTextColor, () {
+                      if (widget.currentRoute == 'menu') return Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (_) => const MenuScreen()),
                       );
                     }),
-                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', false, subTextColor, () {
+                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', widget.currentRoute == 'tables', subTextColor, () {
+                      if (widget.currentRoute == 'tables') return Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (_) => const TablesScreen()),
                       );
                     }),
-                    _buildDrawerItem(Icons.people, 'Meseros', false, subTextColor, null),
+                    _buildDrawerItem(Icons.people, 'Meseros', widget.currentRoute == 'waiters', subTextColor, null),
                   ],
                   _buildDrawerItem(Icons.list_alt, 'Pedidos', false, subTextColor, null),
                   if (isAdmin) ...[

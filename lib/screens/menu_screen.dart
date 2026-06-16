@@ -26,7 +26,7 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      drawer: const CustomDrawer(),
+      drawer: const CustomDrawer(currentRoute: 'menu'),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -70,7 +70,7 @@ class _MenuScreenState extends State<MenuScreen> {
     return Consumer<MenuProvider>(
       builder: (context, provider, child) {
         final products = provider.products;
-        final categories = {'Todos'};
+        final categories = {'Todos', 'Entradas', 'Platos Fuertes', 'Bebidas', 'Postres'};
         for (var p in products) {
           categories.add(p['category']);
         }

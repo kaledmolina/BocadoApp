@@ -125,7 +125,7 @@ class _TablesScreenState extends State<TablesScreen> {
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: -0.5),
         ),
       ),
-      drawer: const CustomDrawer(),
+      drawer: const CustomDrawer(currentRoute: 'tables'),
       body: provider.isLoading && provider.tables.isEmpty
           ? const Center(child: CircularProgressIndicator(color: Colors.orange))
           : Column(

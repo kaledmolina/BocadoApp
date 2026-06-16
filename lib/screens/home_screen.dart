@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      drawer: const CustomDrawer(),
+      drawer: const CustomDrawer(currentRoute: 'home'),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
