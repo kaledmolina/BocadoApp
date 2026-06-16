@@ -78,11 +78,11 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
       });
 
       if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('¡Producto creado exitosamente!'), backgroundColor: Colors.green),
-      );
-      Navigator.of(context).pop(); // Go back to MenuScreen
-      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('¡Producto creado exitosamente!'), backgroundColor: Colors.green),
+        );
+        Navigator.of(context).pop(); // Go back to MenuScreen
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al crear el producto.'), backgroundColor: Colors.red),
         );
