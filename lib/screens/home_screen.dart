@@ -103,7 +103,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildMetricsGrid() {
     // We will build a horizontally scrolling list of metric cards for mobile
     return SizedBox(
-      height: 120,
+      height: 140, // Increased height to prevent overflow
       child: ListView(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
