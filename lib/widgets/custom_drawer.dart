@@ -123,7 +123,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         MaterialPageRoute(builder: (_) => const TablesScreen()),
                       );
                     }),
-                    _buildDrawerItem(Icons.people, 'Meseros', widget.currentRoute == 'waiters', subTextColor, null),
+                    _buildDrawerItem(Icons.people, 'Meseros', widget.currentRoute == 'waiters', subTextColor, () {
+                      if (widget.currentRoute == 'waiters') return Navigator.of(context).pop();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const WaitersScreen()),
+                      );
+                    }),
                   ],
                   _buildDrawerItem(Icons.list_alt, 'Pedidos', false, subTextColor, null),
                   if (isAdmin) ...[
