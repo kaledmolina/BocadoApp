@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/dashboard_provider.dart';
 import '../widgets/custom_drawer.dart';
 import 'login_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().fetchDashboard();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +50,28 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Alerts Section
-            _buildAlertCard(),
-            const SizedBox(height: 24),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await context.read<DashboardProvider>().fetchDashboard();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Alerts Section
+              _buildAlertCard(),
+              const SizedBox(height: 24),
 
-            // Metrics Grid
-            _buildMetricsGrid(),
-            const SizedBox(height: 24),
+              // Metrics Grid (2x2)
+              _buildDashboardMetrics(),
+              const SizedBox(height: 24),
 
-            // Active Tables
-            _buildActiveTablesSection(),
-          ],
+              // Active Tables
+              _buildActiveTablesSection(),
+            ],
+          ),
         ),
       ),
       floatingActionButton: isDemoUser ? FloatingActionButton.extended(
@@ -82,7 +102,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
@@ -125,33 +145,113 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricsGrid() {
-    // We will build a horizontally scrolling list of metric cards for mobile
-    return SizedBox(
-      height: 140, // Increased height to prevent overflow
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        children: [
-          _buildMetricCard('Ventas Totales', '24', 'Pedidos cobrados', Icons.trending_up, Colors.orange),
-          const SizedBox(width: 16),
-          _buildMetricCard('Ingreso Total', '\$450.00', 'Facturado', Icons.attach_money, Colors.green),
-          const SizedBox(width: 16),
-          _buildMetricCard('Ocupación', '5/12', '7 libres', Icons.restaurant, Colors.blue),
-          const SizedBox(width: 16),
-          _buildMetricCard('Por Cobrar', '\$85.50', '2 pendientes', Icons.error_outline, Colors.redAccent),
-        ],
-      ),
+  Widget _buildDashboardMetrics() {
+    return Consumer<DashboardProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.metrics == null) {
+          return const SizedBox(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (provider.errorMessage != null && provider.metrics == null) {
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Text(
+                'Error: ${provider.errorMessage}',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+        }
+
+        final metrics = provider.metrics ?? {};
+        final salesCount = metrics['totalSalesCount']?.toString() ?? '0';
+        final totalIncome = metrics['totalIncome']?.toStringAsFixed(2) ?? '0.00';
+        final avgTicket = metrics['averageTicket']?.toStringAsFixed(2) ?? '0.00';
+        final occupied = metrics['tablesOccupied']?.toString() ?? '0';
+        final totalTables = metrics['tablesTotal']?.toString() ?? '0';
+        final freeTables = metrics['tablesFree']?.toString() ?? '0';
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildExactMetricCard(
+                    title: 'VENTAS\nTOTALES',
+                    value: salesCount,
+                    subtitle: 'Pedidos cobrados',
+                    icon: Icons.trending_up,
+                    iconColor: Colors.orange.shade700,
+                    bgColor: Colors.orange.shade50,
+                    subtitleColor: Colors.grey.shade500,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildExactMetricCard(
+                    title: 'INGRESO\nTOTAL',
+                    value: '\$$totalIncome',
+                    subtitle: '✅ Facturado',
+                    icon: Icons.attach_money,
+                    iconColor: Colors.green.shade600,
+                    bgColor: Colors.green.shade50,
+                    subtitleColor: Colors.green.shade600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildExactMetricCard(
+                    title: 'TICKET\nPROMEDIO',
+                    value: '\$$avgTicket',
+                    subtitle: 'Por cada mesa',
+                    icon: Icons.emoji_events_outlined,
+                    iconColor: Colors.purple.shade500,
+                    bgColor: Colors.purple.shade50,
+                    subtitleColor: Colors.grey.shade500,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildExactMetricCard(
+                    title: 'OCUPACIÓN\n',
+                    value: '$occupied / $totalTables',
+                    subtitle: '$freeTables libres',
+                    icon: Icons.restaurant,
+                    iconColor: Colors.blue.shade500,
+                    bgColor: Colors.blue.shade50,
+                    subtitleColor: Colors.blue.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildMetricCard(String title, String value, String subtitle, IconData icon, Color color) {
+  Widget _buildExactMetricCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
+    required Color subtitleColor,
+  }) {
     return Container(
-      width: 160,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
@@ -161,47 +261,59 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+          // Icon Box
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(icon, size: 24, color: iconColor),
+          ),
+          const SizedBox(width: 12),
+          // Texts
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.grey.shade500,
+                    letterSpacing: 0.5,
+                    height: 1.2,
+                  ),
                 ),
-                child: Icon(icon, size: 16, color: color),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w900,
-              color: Colors.grey.shade500,
-              letterSpacing: 1.0,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: Colors.black87,
-              letterSpacing: -0.5,
-            ),
-          ),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: color,
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: subtitleColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ],
@@ -228,10 +340,72 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        // Mocking two active tables
-        _buildTableCard('Mesa 4', 'Ocupada', 'Pedro Mesero', '\$45.00', Colors.amber),
-        const SizedBox(height: 16),
-        _buildTableCard('Mesa 12', 'Por Cobrar', 'Ana Mesera', '\$120.00', Colors.redAccent),
+        Consumer<DashboardProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading && provider.pendingTables == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final tables = provider.pendingTables ?? [];
+
+            if (tables.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: const Center(
+                  child: Column(
+                    children: [
+                      Text('🎉', style: TextStyle(fontSize: 32)),
+                      SizedBox(height: 8),
+                      Text(
+                        '¡Todas las mesas están libres!',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'No hay pedidos pendientes de cobro.',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: tables.map((table) {
+                // Determine status and color
+                String statusStr = 'Ocupada';
+                Color statusColor = Colors.amber;
+                
+                if (table['status'] == 'payment_pending') {
+                  statusStr = 'Por Cobrar';
+                  statusColor = Colors.redAccent;
+                } else if (table['cart_data'] != null && table['active_order'] == null) {
+                  statusStr = 'Solicitud de Pedido';
+                  statusColor = Colors.blue;
+                }
+
+                String waiterName = table['active_order']?['waiter']?['name'] ?? 'Desconocido';
+                String total = (table['active_order']?['total_amount'] ?? 0).toString();
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildTableCard(
+                    table['number'], 
+                    statusStr, 
+                    waiterName, 
+                    '\$$total', 
+                    statusColor
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -241,7 +415,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: statusColor.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
