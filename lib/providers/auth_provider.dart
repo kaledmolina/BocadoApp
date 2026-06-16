@@ -22,9 +22,9 @@ class AuthProvider with ChangeNotifier {
         'password': password,
       });
 
-      if (response.statusCode == 200) {
-        final token = response.data['token'];
-        final userData = response.data['user'];
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        final token = response.data['data']['token'];
+        final userData = response.data['data']['user'];
 
         // Save token locally
         final prefs = await SharedPreferences.getInstance();
@@ -61,8 +61,8 @@ class AuthProvider with ChangeNotifier {
     _setLoading(true);
     try {
       final response = await _apiService.client.get('/auth/me');
-      if (response.statusCode == 200) {
-        _user = User.fromJson(response.data);
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        _user = User.fromJson(response.data['data']);
         notifyListeners();
       }
     } catch (e) {
