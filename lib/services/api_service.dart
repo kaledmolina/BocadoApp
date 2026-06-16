@@ -6,7 +6,7 @@ class ApiService {
   
   // Set the base URL of your local Laravel API.
   // For Android emulator, use 10.0.2.2. For Windows/iOS simulator, use localhost.
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'https://bocado.click/api';
 
   ApiService() {
     _dio = Dio(BaseOptions(
