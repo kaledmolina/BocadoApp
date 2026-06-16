@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../screens/login_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/menu_screen.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -99,16 +101,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 children: [
-                  _buildDrawerItem(Icons.dashboard, 'Dashboard', true, textColor),
+                  _buildDrawerItem(Icons.dashboard, 'Dashboard', true, textColor, () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                    );
+                  }),
                   if (isAdmin) ...[
-                    _buildDrawerItem(Icons.restaurant_menu, 'Menú / Platos', false, subTextColor),
-                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', false, subTextColor),
-                    _buildDrawerItem(Icons.people, 'Meseros', false, subTextColor),
+                    _buildDrawerItem(Icons.restaurant_menu, 'Menú / Platos', false, subTextColor, () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const MenuScreen()),
+                      );
+                    }),
+                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', false, subTextColor, null),
+                    _buildDrawerItem(Icons.people, 'Meseros', false, subTextColor, null),
                   ],
-                  _buildDrawerItem(Icons.list_alt, 'Pedidos', false, subTextColor),
+                  _buildDrawerItem(Icons.list_alt, 'Pedidos', false, subTextColor, null),
                   if (isAdmin) ...[
-                    _buildDrawerItem(Icons.attach_money, 'Caja', false, subTextColor),
-                    _buildDrawerItem(Icons.settings, 'Configuración', false, subTextColor),
+                    _buildDrawerItem(Icons.attach_money, 'Caja', false, subTextColor, null),
+                    _buildDrawerItem(Icons.settings, 'Configuración', false, subTextColor, null),
                   ],
                 ],
               ),
@@ -322,7 +332,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, bool isActive, Color textColor) {
+  Widget _buildDrawerItem(IconData icon, String title, bool isActive, Color textColor, VoidCallback? onTap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
@@ -344,9 +354,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onTap: () {
-          // Navigation logic here
-        },
+        onTap: onTap,
       ),
     );
   }
