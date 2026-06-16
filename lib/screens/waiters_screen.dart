@@ -22,7 +22,93 @@ class _WaitersScreenState extends State<WaitersScreen> {
     });
   }
 
+  void _showRateWaiterModal(BuildContext context, WaiterModel waiter) {
+    int selectedRating = 0;
+    final commentCtrl = TextEditingController();
 
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Finalizar Contrato', style: TextStyle(fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Vas a desvincular a ${waiter.name} de tu restaurante. Califícalo para guardar su historial de experiencia laboral.', style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                    const SizedBox(height: 16),
+                    const Text('CALIFICACIÓN (1 - 5 ESTRELLAS)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < selectedRating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              selectedRating = index + 1;
+                            });
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('COMENTARIO / RESEÑA', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: commentCtrl,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Ej. Excelente mesero, puntual y muy amable con los clientes...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancelar', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade600),
+                  onPressed: () async {
+                    if (selectedRating == 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, asigna una calificación')));
+                      return;
+                    }
+                    final success = await context.read<WaitersProvider>().rateWaiter(
+                      waiter.id, selectedRating, commentCtrl.text
+                    );
+                    if (mounted) {
+                      Navigator.of(ctx).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(success ? 'Contrato finalizado y calificado' : 'Error al finalizar contrato')),
+                      );
+                    }
+                  },
+                  child: const Text('Finalizar y Calificar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,23 +304,10 @@ class _WaitersScreenState extends State<WaitersScreen> {
                   )
               ],
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Switch(
-                  value: waiter.isActive,
-                  activeColor: Colors.orange,
-                  onChanged: (val) {
-                    provider.toggleWaiterStatus(waiter.id);
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    provider.deleteWaiter(waiter.id);
-                  },
-                ),
-              ],
+            trailing: TextButton(
+              onPressed: () => _showRateWaiterModal(context, waiter),
+              style: TextButton.styleFrom(foregroundColor: Colors.red.shade600),
+              child: const Text('Desvincular', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
             ),
           ),
         );

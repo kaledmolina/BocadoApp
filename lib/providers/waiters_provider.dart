@@ -126,4 +126,21 @@ class WaitersProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> rateWaiter(int waiterId, int rating, String comment) async {
+    try {
+      final response = await _apiService.client.post('/admin/waiters/$waiterId/rate', data: {
+        'rating': rating,
+        'comment': comment,
+      });
+      if (response.data['status'] == 'success') {
+        await fetchWaitersData();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error rating waiter: $e');
+      return false;
+    }
+  }
 }
