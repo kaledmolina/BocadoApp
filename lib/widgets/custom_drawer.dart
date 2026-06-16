@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../screens/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/menu_screen.dart';
+import '../screens/tables_screen.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -112,7 +113,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         MaterialPageRoute(builder: (_) => const MenuScreen()),
                       );
                     }),
-                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', false, subTextColor, null),
+                    _buildDrawerItem(Icons.qr_code, 'Mesas & QRs', false, subTextColor, () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const TablesScreen()),
+                      );
+                    }),
                     _buildDrawerItem(Icons.people, 'Meseros', false, subTextColor, null),
                   ],
                   _buildDrawerItem(Icons.list_alt, 'Pedidos', false, subTextColor, null),
