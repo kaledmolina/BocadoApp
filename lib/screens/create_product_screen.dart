@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 import '../providers/menu_provider.dart';
 
 class CreateProductScreen extends StatefulWidget {
@@ -19,6 +22,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   String _imageUrl = '';
   bool _isAvailable = true;
 
+  File? _imageFile;
+  bool _isCreatingCustomCategory = false;
+
   bool _isSaving = false;
 
   final List<String> _categories = [
@@ -28,6 +34,17 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
     'Postres',
   ];
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+        _imageUrl = ''; // Clear URL if file is picked
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
@@ -36,28 +53,49 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
       _isSaving = true;
     });
 
-    final success = await context.read<MenuProvider>().createProduct({
-      'name': _name,
-      'price': _price,
-      'category': _category,
-      'description': _description,
-      'image_url': _imageUrl.isNotEmpty ? _imageUrl : null,
-      'is_available': _isAvailable,
-    });
+    try {
+      final formData = FormData.fromMap({
+        'name': _name,
+        'price': _price,
+        'category': _category,
+        'description': _description,
+        'is_available': _isAvailable.toString(),
+      });
 
-    setState(() {
-      _isSaving = false;
-    });
+      if (_imageFile != null) {
+        formData.files.add(MapEntry(
+          'image',
+          await MultipartFile.fromFile(_imageFile!.path, filename: 'upload.jpg'),
+        ));
+      } else if (_imageUrl.isNotEmpty) {
+        formData.fields.add(MapEntry('image_url', _imageUrl));
+      }
 
-    if (success && mounted) {
+      final success = await context.read<MenuProvider>().createProduct(formData);
+
+      setState(() {
+        _isSaving = false;
+      });
+
+      if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('¡Producto creado exitosamente!'), backgroundColor: Colors.green),
       );
       Navigator.of(context).pop(); // Go back to MenuScreen
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al crear el producto.'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al crear el producto.'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isSaving = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ocurrió un error inesperado.'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -86,12 +124,38 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image URL field
-              const Text('URL de Imagen del Producto', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+              // Image Upload/URL field
+              const Text('Imagen del Producto', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (_imageFile != null)
+                    Container(
+                      width: 64,
+                      height: 64,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover),
+                      ),
+                    ),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickImage,
+                      icon: const Icon(Icons.image, size: 18),
+                      label: Text(_imageFile != null ? 'Cambiar Foto' : 'Subir Foto'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Ej: https://ejemplo.com/foto.jpg',
+                  hintText: 'O ingresa la URL (ej: https://...)',
                   hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                   filled: true,
                   fillColor: Colors.grey.shade50,
@@ -101,6 +165,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.orange.shade500)),
                 ),
                 keyboardType: TextInputType.url,
+                enabled: _imageFile == null,
+                onChanged: (val) {
+                  setState(() {
+                    _imageUrl = val;
+                  });
+                },
                 onSaved: (val) => _imageUrl = val ?? '',
               ),
               const SizedBox(height: 20),
@@ -157,7 +227,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                         const Text('Categoría', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
-                          value: _category,
+                          value: _isCreatingCustomCategory ? '__new__' : _category,
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.grey.shade50,
@@ -166,12 +236,21 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey.shade200)),
                             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.orange.shade500)),
                           ),
-                          items: _categories.map((cat) {
-                            return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 14)));
-                          }).toList(),
+                          items: [
+                            ..._categories.map((cat) {
+                              return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 14)));
+                            }),
+                            const DropdownMenuItem(value: '__new__', child: Text('+ Nueva categoría...', style: TextStyle(fontSize: 14, color: Colors.orange))),
+                          ],
                           onChanged: (val) {
                             setState(() {
-                              _category = val!;
+                              if (val == '__new__') {
+                                _isCreatingCustomCategory = true;
+                                _category = '';
+                              } else {
+                                _isCreatingCustomCategory = false;
+                                _category = val!;
+                              }
                             });
                           },
                         ),
@@ -180,6 +259,35 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   ),
                 ],
               ),
+              if (_isCreatingCustomCategory) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Nombre de la Nueva Categoría', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          hintText: 'Ej: Ensaladas...',
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        ),
+                        validator: (value) => _isCreatingCustomCategory && (value == null || value.isEmpty) ? 'Requerido' : null,
+                        onChanged: (val) => _category = val,
+                        onSaved: (val) => _category = val ?? '',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
 
               // Description
