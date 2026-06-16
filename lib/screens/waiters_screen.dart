@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/waiters_provider.dart';
+import '../models/waiter_model.dart';
 import '../widgets/custom_drawer.dart';
 
 class WaitersScreen extends StatefulWidget {
