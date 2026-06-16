@@ -40,6 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _fillDemoCredentials(String email, String password) {
+    _emailController.text = email;
+    _passwordController.text = password;
+    _submit();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<AuthProvider>().isLoading;
@@ -69,6 +75,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _submit,
                     child: const Text('Login'),
                   ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text('Demo Credentials:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: () => _fillDemoCredentials('owner@rinconcito.com', 'password'),
+                  child: const Text('Admin'),
+                ),
+                const SizedBox(width: 16),
+                OutlinedButton(
+                  onPressed: () => _fillDemoCredentials('pedro@rinconcito.com', 'password'),
+                  child: const Text('Waiter'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
