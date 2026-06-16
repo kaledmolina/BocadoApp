@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/menu_provider.dart';
 import '../widgets/custom_drawer.dart';
+import 'create_product_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -55,8 +56,8 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('La creación de productos desde la app se añadirá próximamente.')),
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const CreateProductScreen()),
           );
         },
         backgroundColor: Colors.orange.shade600,

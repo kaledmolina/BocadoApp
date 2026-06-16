@@ -53,4 +53,20 @@ class MenuProvider with ChangeNotifier {
     }
     return false;
   }
+
+  Future<bool> createProduct(Map<String, dynamic> productData) async {
+    try {
+      final response = await _apiService.client.post('/products', data: productData);
+      if (response.data['status'] == 'success') {
+        // Add the new product to the list
+        _products.add(response.data['data']);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      // Could capture error message here
+      return false;
+    }
+    return false;
+  }
 }
