@@ -353,9 +353,9 @@ class _WaitersScreenState extends State<WaitersScreen> {
               ),
               const SizedBox(width: 16),
               Switch(
-                value: false, // You would bind this to a provider variable to actually toggle
+                value: provider.isHiring,
                 onChanged: (val) {
-                  // Implement toggle logic here
+                  provider.toggleHiring();
                 },
                 activeColor: Colors.white,
                 activeTrackColor: Colors.blue.shade400,

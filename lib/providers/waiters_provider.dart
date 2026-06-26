@@ -11,11 +11,13 @@ class WaitersProvider with ChangeNotifier {
   String _invitationLink = '';
 
   bool _isLoading = false;
+  bool _isHiring = false;
 
   List<WaiterModel> get waiters => _waiters;
   List<ApplicationModel> get applications => _applications;
   List<AvailableWaiterModel> get availableWaiters => _availableWaiters;
   String get invitationLink => _invitationLink;
+  bool get isHiring => _isHiring;
 
   bool get isLoading => _isLoading;
 
@@ -41,6 +43,10 @@ class WaitersProvider with ChangeNotifier {
             .toList();
 
         _invitationLink = data['invitationLink'] ?? '';
+        
+        if (data['restaurant'] != null) {
+          _isHiring = data['restaurant']['is_hiring'] == 1 || data['restaurant']['is_hiring'] == true;
+        }
       }
     } catch (e) {
       debugPrint('Error fetching waiters data: $e');
@@ -141,6 +147,23 @@ class WaitersProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('Error rating waiter: $e');
       return false;
+    }
+  }
+
+  Future<void> toggleHiring() async {
+    final oldState = _isHiring;
+    _isHiring = !_isHiring;
+    notifyListeners();
+    try {
+      final response = await _apiService.client.post('/restaurants/settings/toggle-hiring');
+      if (response.data['status'] != 'success') {
+        _isHiring = oldState;
+        notifyListeners();
+      }
+    } catch (e) {
+      _isHiring = oldState;
+      notifyListeners();
+      debugPrint('Error toggling hiring status: $e');
     }
   }
 }
