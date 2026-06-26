@@ -1,3 +1,29 @@
+class RatingModel {
+  final int id;
+  final int rating;
+  final String comment;
+  final String restaurantName;
+  final String createdAt;
+
+  RatingModel({
+    required this.id,
+    required this.rating,
+    required this.comment,
+    required this.restaurantName,
+    required this.createdAt,
+  });
+
+  factory RatingModel.fromJson(Map<String, dynamic> json) {
+    return RatingModel(
+      id: json['id'],
+      rating: json['rating'] ?? 0,
+      comment: json['comment'] ?? '',
+      restaurantName: json['restaurant'] != null ? json['restaurant']['name'] : 'Restaurante Desconocido',
+      createdAt: json['created_at'] ?? '',
+    );
+  }
+}
+
 class WaiterModel {
   final int id;
   final String name;
@@ -12,6 +38,7 @@ class WaiterModel {
   final String? bio;
   final String? skills;
   final String? experienceDescription;
+  final List<RatingModel> ratings;
 
   WaiterModel({
     required this.id,
@@ -27,12 +54,18 @@ class WaiterModel {
     this.bio,
     this.skills,
     this.experienceDescription,
+    this.ratings = const [],
   });
 
   factory WaiterModel.fromJson(Map<String, dynamic> json) {
     bool isShiftActive = false;
     if (json['shifts'] != null && (json['shifts'] as List).isNotEmpty) {
       isShiftActive = true;
+    }
+
+    List<RatingModel> ratingsList = [];
+    if (json['ratings'] != null) {
+      ratingsList = (json['ratings'] as List).map((r) => RatingModel.fromJson(r)).toList();
     }
 
     return WaiterModel(
@@ -49,6 +82,7 @@ class WaiterModel {
       bio: json['bio'],
       skills: json['skills'],
       experienceDescription: json['experience_description'],
+      ratings: ratingsList,
     );
   }
 }
@@ -86,6 +120,7 @@ class AvailableWaiterModel {
   final String? skills;
   final String? experienceDescription;
   final String? status;
+  final List<RatingModel> ratings;
 
   AvailableWaiterModel({
     required this.id,
@@ -100,12 +135,18 @@ class AvailableWaiterModel {
     this.skills,
     this.experienceDescription,
     this.status,
+    this.ratings = const [],
   });
 
   factory AvailableWaiterModel.fromJson(Map<String, dynamic> json) {
     String? applicationStatus;
     if (json['applications'] != null && (json['applications'] as List).isNotEmpty) {
       applicationStatus = json['applications'][0]['status'];
+    }
+
+    List<RatingModel> ratingsList = [];
+    if (json['ratings'] != null) {
+      ratingsList = (json['ratings'] as List).map((r) => RatingModel.fromJson(r)).toList();
     }
 
     return AvailableWaiterModel(
@@ -121,6 +162,7 @@ class AvailableWaiterModel {
       skills: json['skills'],
       experienceDescription: json['experience_description'],
       status: applicationStatus,
+      ratings: ratingsList,
     );
   }
 }

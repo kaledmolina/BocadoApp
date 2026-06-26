@@ -114,6 +114,9 @@ class _WaitersScreenState extends State<WaitersScreen> {
   void _showWaiterProfileDialog(BuildContext context, {
     required String name,
     required String email,
+    required int experienceHours,
+    required double averageRating,
+    required List<RatingModel> ratings,
     String? phone,
     String? city,
     String? birthday,
@@ -181,6 +184,50 @@ class _WaitersScreenState extends State<WaitersScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      // Stats Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.orange.shade100),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.timer_outlined, color: Colors.orange),
+                                  const SizedBox(height: 8),
+                                  Text('$experienceHours h', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const Text('Plataforma', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.orange.shade100),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.star_outline, color: Colors.orange),
+                                  const SizedBox(height: 8),
+                                  Text('$averageRating / 5', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const Text('Calificación', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       
                       // Info list
                       _buildProfileItem(Icons.mail_outline, 'CORREO ELECTRÓNICO', email, true),
@@ -198,6 +245,45 @@ class _WaitersScreenState extends State<WaitersScreen> {
                       _buildProfileSection('SOBRE MÍ (PRESENTACIÓN)', bio ?? 'El mesero no ha redactado una presentación todavía.', bio != null, isBoxed: true),
                       const SizedBox(height: 20),
                       _buildProfileSection('EXPERIENCIA LABORAL EXTERNA', experienceDescription ?? 'Sin historial de experiencia externa cargado.', experienceDescription != null, isBoxed: true),
+                      const SizedBox(height: 24),
+
+                      // Reviews
+                      const Text('HISTORIAL DE RESEÑAS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: 0.5)),
+                      const SizedBox(height: 12),
+                      if (ratings.isEmpty)
+                        const Text('Sin reseñas en la plataforma.', style: TextStyle(fontSize: 13, color: Colors.grey, fontStyle: FontStyle.italic))
+                      else
+                        ...ratings.map((r) => Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(r.restaurantName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.star, color: Colors.amber.shade500, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text('${r.rating}.0', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              if (r.comment.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text('"${r.comment}"', style: const TextStyle(fontSize: 13, color: Colors.black87, fontStyle: FontStyle.italic)),
+                              ]
+                            ],
+                          ),
+                        )),
                     ],
                   ),
                 ),
@@ -468,6 +554,9 @@ class _WaitersScreenState extends State<WaitersScreen> {
                   context,
                   name: waiter.name,
                   email: waiter.email,
+                  experienceHours: waiter.experienceHours,
+                  averageRating: waiter.averageRating,
+                  ratings: waiter.ratings,
                   phone: waiter.phone,
                   city: waiter.city,
                   birthday: waiter.birthday,
