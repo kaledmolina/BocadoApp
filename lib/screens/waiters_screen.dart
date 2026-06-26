@@ -107,7 +107,6 @@ class _WaitersScreenState extends State<WaitersScreen> {
             );
           }
         );
-        );
       },
     );
   }
