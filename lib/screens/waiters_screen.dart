@@ -147,32 +147,36 @@ class _WaitersScreenState extends State<WaitersScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                           child: Text(
                             'Gestiona las cuentas de tu personal de mesa, monitorea sus turnos y procesa las nuevas postulaciones.',
-                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                            style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              setState(() {
-                                _searchQuery = val.toLowerCase();
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Buscar mesero...',
-                              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(color: Colors.grey.shade300),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(color: Colors.grey.shade300),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: const BorderSide(color: Colors.orange),
+                          child: SizedBox(
+                            height: 48,
+                            child: TextField(
+                              onChanged: (val) {
+                                setState(() {
+                                  _searchQuery = val.toLowerCase();
+                                });
+                              },
+                              decoration: InputDecoration(
+                                hintText: 'Buscar mesero...',
+                                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                                prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B), size: 20),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: const BorderSide(color: Color(0xFFF97316)),
+                                ),
                               ),
                             ),
                           ),
@@ -182,11 +186,12 @@ class _WaitersScreenState extends State<WaitersScreen> {
                         
                         // TabBar
                         TabBar(
-                          labelColor: Colors.orange,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: Colors.orange,
+                          labelColor: const Color(0xFFEA580C),
+                          unselectedLabelColor: const Color(0xFF94A3B8),
+                          indicatorColor: const Color(0xFFEA580C),
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                          indicatorWeight: 3,
+                          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          indicatorWeight: 2,
                           tabs: [
                             Tab(text: 'Meseros\nActivos (${provider.waiters.length})'),
                             Tab(text: 'Solicitudes de\nVinculación (${provider.applications.length})'),
@@ -214,45 +219,48 @@ class _WaitersScreenState extends State<WaitersScreen> {
 
   Widget _buildInviteLinkCard(String link) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFFF7F2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFCE1D1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Enlace de Invitación de Meseros', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 14)),
-          const SizedBox(height: 4),
-          const Text('Comparte este enlace para que tu personal llene sus propios datos y active su cuenta de mesero.', style: TextStyle(fontSize: 12, color: Colors.grey)),
-          const SizedBox(height: 12),
+          const Text('Enlace de Invitación de Meseros', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B), fontSize: 14)),
+          const SizedBox(height: 6),
+          const Text('Comparte este enlace para que tu personal llene sus propios datos y active su cuenta de mesero.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4)),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: Text(link, style: const TextStyle(fontSize: 12, color: Colors.black87), overflow: TextOverflow.ellipsis),
+                  child: Text(link, style: const TextStyle(fontSize: 13, color: Color(0xFF334155)), overflow: TextOverflow.ellipsis),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.copy, size: 20, color: Colors.grey),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: link));
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enlace copiado al portapapeles')));
-                  },
+              const SizedBox(width: 12),
+              InkWell(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: link));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enlace copiado al portapapeles')));
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: const Icon(Icons.copy, size: 20, color: Color(0xFF64748B)),
                 ),
               )
             ],
@@ -319,66 +327,116 @@ class _WaitersScreenState extends State<WaitersScreen> {
   Widget _buildApplicationsList(WaitersProvider provider) {
     final list = provider.applications.where((a) => a.user.name.toLowerCase().contains(_searchQuery) || a.user.email.toLowerCase().contains(_searchQuery)).toList();
 
-    if (list.isEmpty) {
-      return const Center(child: Text('No hay solicitudes pendientes', style: TextStyle(color: Colors.grey)));
-    }
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: list.length,
-      itemBuilder: (ctx, i) {
-        final app = list[i];
-        return Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.shade200)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+      children: [
+        // Bolsa de Empleo card
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.orange.shade100,
-                      child: Text(app.user.name.substring(0, 2).toUpperCase(), style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(app.user.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(app.user.email, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                        ],
-                      ),
-                    )
+                    const Text('Bolsa de Empleo: Buscando Meseros', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B), fontSize: 14)),
+                    const SizedBox(height: 6),
+                    const Text('Si está activado, los meseros registrados sin local podrán ver tu restaurante en la bolsa de trabajo y postularse.', style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4)),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                        onPressed: () => provider.processApplication(app.id, 'rejected'),
-                        child: const Text('Rechazar'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                        onPressed: () => provider.processApplication(app.id, 'approved'),
-                        child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ],
-                )
+              ),
+              const SizedBox(width: 16),
+              Switch(
+                value: false, // You would bind this to a provider variable to actually toggle
+                onChanged: (val) {
+                  // Implement toggle logic here
+                },
+                activeColor: Colors.white,
+                activeTrackColor: Colors.blue.shade400,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: Colors.grey.shade300,
+              )
+            ],
+          ),
+        ),
+        
+        if (list.isEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.mail, size: 48, color: Colors.purple.shade200),
+                const SizedBox(height: 20),
+                const Text('No hay postulaciones pendientes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B))),
+                const SizedBox(height: 8),
+                const Text('Cuando los meseros se postulen, aparecerán aquí.', style: TextStyle(fontSize: 14, color: Color(0xFF64748B)), textAlign: TextAlign.center),
               ],
             ),
-          ),
-        );
-      },
+          )
+        else
+          ...list.map((app) => Card(
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.shade200)),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.orange.shade100,
+                        child: Text(app.user.name.substring(0, 2).toUpperCase(), style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(app.user.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(app.user.email, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                          onPressed: () => provider.processApplication(app.id, 'rejected'),
+                          child: const Text('Rechazar'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                          onPressed: () => provider.processApplication(app.id, 'approved'),
+                          child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          )),
+      ],
     );
   }
 
