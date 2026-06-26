@@ -313,10 +313,33 @@ class _WaitersScreenState extends State<WaitersScreen> {
                   )
               ],
             ),
-            trailing: TextButton(
-              onPressed: () => _showRateWaiterModal(context, waiter),
-              style: TextButton.styleFrom(foregroundColor: Colors.red.shade600),
-              child: const Text('Desvincular', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            trailing: IconButton(
+              icon: const Icon(Icons.remove_red_eye, color: Colors.blue),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text('Perfil de ${waiter.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Correo: ${waiter.email}'),
+                        const SizedBox(height: 8),
+                        Text('Experiencia: ${waiter.experienceHours} horas'),
+                        const SizedBox(height: 8),
+                        Text('Calificación: ${waiter.averageRating} / 5'),
+                      ]
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('Cerrar'),
+                      )
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         );
