@@ -7,6 +7,11 @@ class WaiterModel {
   final double averageRating;
   final bool isShiftActive;
   final String? phone;
+  final String? city;
+  final String? birthday;
+  final String? bio;
+  final String? skills;
+  final String? experienceDescription;
 
   WaiterModel({
     required this.id,
@@ -17,6 +22,11 @@ class WaiterModel {
     required this.averageRating,
     required this.isShiftActive,
     this.phone,
+    this.city,
+    this.birthday,
+    this.bio,
+    this.skills,
+    this.experienceDescription,
   });
 
   factory WaiterModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +44,11 @@ class WaiterModel {
       averageRating: (json['average_rating'] ?? 0).toDouble(),
       isShiftActive: isShiftActive,
       phone: json['phone'],
+      city: json['city'],
+      birthday: json['birthday'],
+      bio: json['bio'],
+      skills: json['skills'],
+      experienceDescription: json['experience_description'],
     );
   }
 }
@@ -65,6 +80,11 @@ class AvailableWaiterModel {
   final int experienceHours;
   final double averageRating;
   final String? phone;
+  final String? city;
+  final String? birthday;
+  final String? bio;
+  final String? skills;
+  final String? experienceDescription;
   final String? status;
 
   AvailableWaiterModel({
@@ -74,6 +94,11 @@ class AvailableWaiterModel {
     required this.experienceHours,
     required this.averageRating,
     this.phone,
+    this.city,
+    this.birthday,
+    this.bio,
+    this.skills,
+    this.experienceDescription,
     this.status,
   });
 
@@ -90,6 +115,11 @@ class AvailableWaiterModel {
       experienceHours: json['experience_hours'] ?? 0,
       averageRating: (json['average_rating'] ?? 0).toDouble(),
       phone: json['phone'],
+      city: json['city'],
+      birthday: json['birthday'],
+      bio: json['bio'],
+      skills: json['skills'],
+      experienceDescription: json['experience_description'],
       status: applicationStatus,
     );
   }

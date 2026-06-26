@@ -107,7 +107,156 @@ class _WaitersScreenState extends State<WaitersScreen> {
             );
           }
         );
+        );
       },
+    );
+  }
+
+  void _showWaiterProfileDialog(BuildContext context, {
+    required String name,
+    required String email,
+    String? phone,
+    String? city,
+    String? birthday,
+    String? skills,
+    String? bio,
+    String? experienceDescription,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        insetPadding: const EdgeInsets.all(16),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 800),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.person_outline, color: Colors.orange),
+                        const SizedBox(width: 8),
+                        const Text('Perfil Detallado de Mesero', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    )
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: Color(0xFFF1F5F9)),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Top Card
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 36,
+                              backgroundColor: Colors.orange.shade700,
+                              child: Text(name.substring(0, 2).toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF0F172A))),
+                            const SizedBox(height: 4),
+                            const Text('PERSONAL DE MESA', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Info list
+                      _buildProfileItem(Icons.mail_outline, 'CORREO ELECTRÓNICO', email, true),
+                      const SizedBox(height: 12),
+                      _buildProfileItem(Icons.phone_outlined, 'NÚMERO DE TELÉFONO', phone ?? 'No especificado', phone != null),
+                      const SizedBox(height: 12),
+                      _buildProfileItem(Icons.location_on_outlined, 'CIUDAD / RESIDENCIA', city ?? 'No especificado', city != null),
+                      const SizedBox(height: 12),
+                      _buildProfileItem(Icons.cake_outlined, 'CUMPLEAÑOS / EDAD', birthday ?? 'No especificado', birthday != null),
+                      
+                      const SizedBox(height: 24),
+                      // Sections
+                      _buildProfileSection('HABILIDADES', skills ?? 'Sin habilidades especificadas.', skills != null),
+                      const SizedBox(height: 20),
+                      _buildProfileSection('SOBRE MÍ (PRESENTACIÓN)', bio ?? 'El mesero no ha redactado una presentación todavía.', bio != null, isBoxed: true),
+                      const SizedBox(height: 20),
+                      _buildProfileSection('EXPERIENCIA LABORAL EXTERNA', experienceDescription ?? 'Sin historial de experiencia externa cargado.', experienceDescription != null, isBoxed: true),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileItem(IconData icon, String title, String value, bool hasValue) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.orange, size: 24),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 0.5)),
+                const SizedBox(height: 4),
+                Text(value, style: TextStyle(fontSize: 14, color: hasValue ? Colors.black87 : Colors.grey, fontStyle: hasValue ? FontStyle.normal : FontStyle.italic, fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal)),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileSection(String title, String content, bool hasContent, {bool isBoxed = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: 0.5)),
+        const SizedBox(height: 8),
+        if (isBoxed)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade100),
+            ),
+            child: Text(content, style: TextStyle(fontSize: 13, color: hasContent ? Colors.black87 : Colors.grey, fontStyle: hasContent ? FontStyle.normal : FontStyle.italic)),
+          )
+        else
+          Text(content, style: TextStyle(fontSize: 13, color: hasContent ? Colors.black87 : Colors.grey, fontStyle: hasContent ? FontStyle.normal : FontStyle.italic)),
+      ],
     );
   }
 
@@ -316,28 +465,16 @@ class _WaitersScreenState extends State<WaitersScreen> {
             trailing: IconButton(
               icon: const Icon(Icons.remove_red_eye, color: Colors.blue),
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text('Perfil de ${waiter.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Correo: ${waiter.email}'),
-                        const SizedBox(height: 8),
-                        Text('Experiencia: ${waiter.experienceHours} horas'),
-                        const SizedBox(height: 8),
-                        Text('Calificación: ${waiter.averageRating} / 5'),
-                      ]
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Cerrar'),
-                      )
-                    ],
-                  ),
+                _showWaiterProfileDialog(
+                  context,
+                  name: waiter.name,
+                  email: waiter.email,
+                  phone: waiter.phone,
+                  city: waiter.city,
+                  birthday: waiter.birthday,
+                  skills: waiter.skills,
+                  bio: waiter.bio,
+                  experienceDescription: waiter.experienceDescription,
                 );
               },
             ),
